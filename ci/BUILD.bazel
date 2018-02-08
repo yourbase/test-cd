@@ -1,0 +1,89 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("//bazel:go.bzl", "go_http_server")
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
+load("@io_bazel_rules_docker//go:image.bzl", "go_image")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "github.go",
+        "main.go",
+    ],
+    importpath = "github.com/yourbase/yourbase/ci",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//bazel:go_default_library",
+        "//ci/logview:go_default_library",
+        "@com_github_google_go_github//github:go_default_library",
+        "@com_github_joonix_log//:go_default_library",
+        "@com_github_kelseyhightower_envconfig//:go_default_library",
+        "@com_github_phayes_hookserve//hookserve:go_default_library",
+        "@com_github_satori_go_uuid//:go_default_library",
+        "@com_github_sirupsen_logrus//:go_default_library",
+        "@in_gopkg_src_d_go_git_v4//:go_default_library",
+        "@in_gopkg_src_d_go_git_v4//plumbing:go_default_library",
+        "@org_golang_x_oauth2//:go_default_library",
+    ],
+)
+
+go_http_server(
+    name = "ci_server",
+
+    # args passing works for _image.binary but not for the image itself.
+    args = ["$(location @io_k8s_kubernetes//cmd/kubectl:kubectl)"],
+    base = "@docker_bazel//image",
+    embed = [":go_default_library"],
+    enable_uniformity_testing = False,
+    environment_access = {
+        # optional
+        "production": "public",  # everything else
+        # is restricted
+    },
+    # app_config = ":helloworld_cfg"  # optional
+    files = [
+        ":cd.sh",
+        ":ci.sh",
+        "@io_k8s_kubernetes//cmd/kubectl:kubectl",
+    ],
+    secrets = [
+        "github/token",
+        "github/username",
+        "github/password",
+        "kube/access_token",
+        "kube/registry_json_key",
+    ],
+)
+
+go_binary(
+    name = "ci",
+    embed = [":go_default_library"],
+    importpath = "github.com/yourbase/yourbase/ci",
+    visibility = ["//visibility:public"],
+)
+
+# This test is slow because it uses a fresh workspace with little caching. It
+# can take 2 minutes or so. But it's important that we don't have regressions
+# here, so let's run it consistently, then look for ways to make it go faster
+# later on.  The first idea is to replace git_repository rules in WORKSPACE
+# with http_repository, to speed up the workspace fetching.
+sh_test(
+    name = "ci_test",
+    # If we pass -tmpBase to the test (via test.sh) it can take 5 minutes.
+    # Bazel is very fast when there's caching but in this case
+    # there is none, so it can take a very long time.
+    timeout = "long",
+    srcs = ["test.sh"],
+    args = ["$(location ci_server_image.binary)"],
+    data = [
+        "ci.sh",
+        "ci_server_image.binary",
+    ] + glob(["testdata/*.json"]),
+)
+
+exports_files(
+    [
+        "cd.sh",
+        "ci.sh",
+        "README.md",
+    ] + glob(["testdata/*.json"]),
+)
