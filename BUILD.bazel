@@ -1,0 +1,43 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@com_github_yourbase_yourbase//bazel:go.bzl", "go_http_server")
+load("@bazel_gazelle//:def.bzl", "gazelle")
+
+gazelle(
+    name = "gazelle",
+    external = "vendored",
+    prefix = "github.com/yourbase/test-cd",
+)
+
+# Silence Bazel CI errors that appear whenever these files are updated.
+exports_files(([
+    ".gitignore",
+    "LICENSE",
+    "README.md",
+]))
+
+# TODO: parametrise
+go_http_server(
+    name = "test_cd",
+    embed = [":go_default_library"],
+    environment_access = {
+        # optional
+        "production": "public",  # everything else
+        # is restricted
+    },
+    importRepo = "@com_github_yourbase_yourbase",
+    # app_config = ":hellogrpc_cfg"
+    # optional
+)
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importpath = "github.com/yourbase/test-cd",
+    visibility = ["//visibility:private"],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["main_test.go"],
+    embed = [":go_default_library"],
+)
