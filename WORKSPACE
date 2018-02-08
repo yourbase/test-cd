@@ -74,8 +74,8 @@ k8s_repositories()
 # sense to move the cli to a separate repo.
 http_archive(
     name = "com_github_yourbase_yourbase",
-    strip_prefix = "yourbase-21838df71a3d531227ccf297b449f7b2652a3542",
-    urls = ["https://github.com/yourbase/yourbase/archive/21838df71a3d531227ccf297b449f7b2652a3542.tar.gz"],
+    strip_prefix = "yourbase-368e80260cf88b8efc32703838ff7a67c418d318",
+    urls = ["https://github.com/yourbase/yourbase/archive/368e80260cf88b8efc32703838ff7a67c418d318.tar.gz"],
 )
 
 #local_repository(
