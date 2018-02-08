@@ -1,0 +1,18 @@
+load(
+    "@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl",
+    "jsonnet_library",
+)
+
+jsonnet_library(
+  name = "secrets",
+  srcs = [
+      "secret.jsonnet",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+exports_files(glob([
+    "golden_secret.json",
+  ]),
+  visibility = ["//visibility:public"],
+)

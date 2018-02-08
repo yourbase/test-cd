@@ -1,0 +1,57 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load(
+    "@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl",
+    "jsonnet_library",
+    "jsonnet_to_json_test",
+)
+load(":go.bzl", "expand_secrets")
+
+jsonnet_library(
+    name = "ksonnet-lib",
+    srcs = [
+        "@com_github_ksonnet_lib//:ksonnet_files",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+expand_secrets(
+    "test",
+    ["secret"],
+    repo = "//bazel/testdata",
+)
+
+# Test that the secrets skylark magic produces the expected output.
+# This isn't a very robust test because the JSON objects could be slightly
+# different, such as fields out of order, causing the test to fail.
+# Ideally the test should compare the JSON files independently of their
+# encoding.
+# Example: bazelbuild/rules_k8s/blob/master/examples/hellohttp/deployment_test.py
+sh_test(
+    name = "secrets_test",
+    srcs = ["secrets_test.sh"],
+    args = [
+        "test_secret_secret.json",
+        "testdata/golden_secret.json",
+    ],
+    data = [
+        "//bazel:test_secret_secret.json",
+        "//bazel/testdata:golden_secret.json",
+    ],
+    # This test require secrets configs because templates/secrets.bzl isn't
+    # abstracted for local imports yet.
+    tags = ["manual"],
+)
+
+exports_files(glob([
+    "def.bzl",
+    "deployment.jsonnet",
+    "go.bzl",
+    "secrets.bzl",
+]))
+
+go_library(
+    name = "go_default_library",
+    srcs = ["bazellib.go"],
+    importpath = "github.com/yourbase/yourbase/bazel",
+    visibility = ["//visibility:public"],
+)
