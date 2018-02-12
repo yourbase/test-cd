@@ -27,6 +27,7 @@ go_http_server(
     importRepo = "@com_github_yourbase_yourbase",
     # app_config = ":hellogrpc_cfg"
     # optional
+    srcs = ["main.go"],
 )
 
 go_library(
