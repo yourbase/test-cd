@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-var port = flag.Int("port", "8088", "Port for the server to listen")
+var port = flag.Int("port", 8088, "Port for the server to listen")
 
 type helloWorldHandler struct{}
 
