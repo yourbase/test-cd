@@ -17,6 +17,7 @@ func (h helloWorldHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	flag.Parse()
 	err := http.ListenAndServe(fmt.Sprintf(":%v", *port), helloWorldHandler{})
 	log.Fatal("HelloWorld ListenAndServe error", err)
 }
