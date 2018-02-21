@@ -24,7 +24,6 @@ go_http_server(
         "production": "public",  # everything else
         # is restricted
     },
-    importRepo = "@com_github_yourbase_yourbase",
     # app_config = ":hellogrpc_cfg"
     # optional
     srcs = ["main.go"],
