@@ -60,8 +60,9 @@ container_repositories()
 # it is pulled in.
 git_repository(
     name = "io_bazel_rules_k8s",
-    commit = "8240d175e08b3e4c2a1f3d6038d33800fb1cd692",
-    remote = "https://github.com/bazelbuild/rules_k8s.git",
+    # TODO: Switch back upstream.
+    commit = "5e97762dbf049eebb7c1ccaea8420d98c654a103",
+    remote = "https://github.com/nictuku/rules_k8s.git",
 )
 
 load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories", "k8s_defaults")
@@ -74,8 +75,8 @@ k8s_repositories()
 # sense to move the cli to a separate repo.
 http_archive(
     name = "com_github_yourbase_yourbase",
-    strip_prefix = "yourbase-855521282bb3c6d93eefe306c55d353a4e76faec",
-    urls = ["https://github.com/yourbase/yourbase/archive/855521282bb3c6d93eefe306c55d353a4e76faec.tar.gz"],
+    strip_prefix = "yourbase-ad41eccba91cf9247a841098dc57c0549ccb14b4",
+    urls = ["https://github.com/yourbase/yourbase/archive/ad41eccba91cf9247a841098dc57c0549ccb14b4.tar.gz"],
 )
 
 #local_repository(
