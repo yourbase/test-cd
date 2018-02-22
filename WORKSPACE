@@ -615,3 +615,34 @@ go_repository(
     commit = "89517e96e10b93292169a79fd4523807bdc5d5fa",
     importpath = "github.com/djherbis/atime",
 )
+
+### for nodejs
+git_repository(
+    name = "build_bazel_rules_nodejs",
+    remote = "https://github.com/bazelbuild/rules_nodejs.git",
+    commit = "9b2b5aa764386b3da705ccc6c56389d07183e0ec"
+    # tag = "0.3.1", # check for the latest tag when you install
+)
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+
+# NOTE: this rule installs nodejs, npm, and yarn, but does NOT install
+# your npm dependencies into your node_modules folder.
+# You must still run the package manager to do this.
+node_repositories(package_json = ["//examples/hellohttp/nodejs:package.json"])
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
+
+npm_install(
+    name = "test_cd_nodejs",
+    package_lock_json = "//nodejs:package-lock.json",
+    package_json = "//nodejs:package.json",
+)
+
+# Download base images, etc.
+load(
+    "@io_bazel_rules_docker//nodejs:image.bzl",
+    _nodejs_image_repos = "repositories",
+)
+
+_nodejs_image_repos()

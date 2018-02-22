@@ -1,0 +1,26 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+load("@com_github_yourbase_yourbase//bazel:nodejs.bzl", "nodejs_http_server")
+
+exports_files(glob([
+    ".gitignore",
+    "package-lock.json",
+    "package.json",
+    "yarn.lock",
+]))
+
+nodejs_http_server(
+    name = "nodejs-test-cd",
+    node_modules = "@example_nodejs//:node_modules",
+    data = [
+        "server.js",
+    ],
+    environment_access = {
+        # optional
+        "production": "public",  # everything else
+        # is restricted
+    },
+    # app_config = ":hellogrpc_cfg"  # optional
+    # TODO: Use $(location :server.js) when that lands:
+    # https://github.com/bazelbuild/rules_nodejs/issues/32
+    entry_point = "__main__/examples/hellohttp/nodejs/server.js",
+)
